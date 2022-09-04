@@ -68,8 +68,8 @@ export default defineComponent({
                 <hr>
                 <!-- v-on:myevent="submitHandler" = @myevent="submitHandler" -->
                 <form-tag @myevent="submitHandler" name="login" event="myevent" method="post" action="/login">
-                    <text-input v-model="email" label="Email" type="email" name="email" required="true" />
-                    <text-input v-model="password" label="Password" type="password" name="password" required="true" />
+                    <text-input v-model="email" label="Email" type="email" name="email" required />
+                    <text-input v-model="password" label="Password" type="password" name="password" required />
                     <hr />
                     E-mail: {{email}}
                     <hr />

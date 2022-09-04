@@ -5,14 +5,15 @@
     </form>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
     name: 'FormTag',
     props: ["method", "action", "name", "event"],
     methods: {
         submit() {
-            let myForm = this.$refs[this.$props.name];
+            let myForm = this.$refs[this.$props.name] as HTMLFormElement;
 
             if (myForm.checkValidity()) {
                 this.$emit(this.$props['event']);
@@ -29,7 +30,7 @@ export default {
             // Loop over them and prevent submission
             Array.prototype.slice.call(forms)
                 .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
+                    form.addEventListener('submit', function (event: MouseEvent) {
                         if (!form.checkValidity()) {
                             event.preventDefault()
                             event.stopPropagation()
@@ -40,5 +41,5 @@ export default {
                 })
         })();
     }
-};
+});
 </script>

@@ -9,13 +9,13 @@
                 <hr />
 
                 <form-tag v-if="ready" @userEditEvent="submitHandler" name="userform" event="userEditEvent">
-                    <text-input v-model="user.first_name" type="text" required="true" label="First Name"
+                    <text-input v-model="user.first_name" type="text" required label="First Name"
                         :value="user.first_name" name="first-name" />
-                    <text-input v-model="user.last_name" type="text" required="true" label="Last Name"
+                    <text-input v-model="user.last_name" type="text" required label="Last Name"
                         :value="user.last_name" name="last-name" />
-                    <text-input v-model="user.email" type="text" required="true" label="E-mail" :value="user.email"
+                    <text-input v-model="user.email" type="text" required label="E-mail" :value="user.email"
                         name="email" />
-                    <text-input v-if="user.id === 0" v-model="user.password" type="password" required="true"
+                    <text-input v-if="user.id === 0" v-model="user.password" type="password" required
                         label="Password" :value="user.email" name="password" />
                     <text-input v-else v-model="user.password" type="password" label="Password" :value="user.email"
                         name="password" help="Leave empty to keep existing password" />

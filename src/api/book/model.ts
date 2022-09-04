@@ -3,7 +3,7 @@ export interface Book {
     title: string;
     author_id: number | string;
     author?: Author;
-    publication_year: number | string | null;
+    publication_year: number | string | undefined;
     description: string;
     cover: string;
     slug: string;

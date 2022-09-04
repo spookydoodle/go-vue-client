@@ -28,22 +28,22 @@
                             accept="image/jpeg" @change="loadCoverImage" />
                     </div>
 
-                    <text-input v-model="book.title" type="text" required="true" label="Title" :value="book.title"
+                    <text-input v-model="book.title" type="text" required label="Title" :value="book.title"
                         name="title" />
                     <select-input name="author-id" v-model="book.author_id" :items="authors" required="required"
                         label="Author" />
-                    <text-input v-model="book.publication_year" type="number" required="true" label="Publication Year"
+                    <text-input type="number" v-model="book.publication_year" required label="Publication Year"
                         :value="book.publication_year" name="publication-year" />
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <textarea v-model="book.description" required="true" name="description" class="form-control"
+                        <textarea v-model="book.description" required name="description" class="form-control"
                             id="description" rows="3" />
                     </div>
 
                     <div class="mb-3">
                         <label for="genres" class="form-label">Genres</label>
-                        <select ref="genres" id="genres" required="true" size="7" v-model="book.genre_ids" multiple
+                        <select ref="genres" id="genres" required size="7" v-model="book.genre_ids" multiple
                             class="form-select">
                             <option v-for="g in genres" :value="g.value" :key="g.value">{{ g.text }}</option>
                         </select>
@@ -95,7 +95,7 @@ const defaultBook: Book = {
     id: 0,
     title: '',
     author_id: 0,
-    publication_year: null,
+    publication_year: undefined,
     description: '',
     cover: '',
     slug: '',
