@@ -1,15 +1,9 @@
 import { reactive } from 'vue';
+import { UserModel } from '@/api';
 
 export interface Store {
     token: string;
-    user: User | null;
-}
-
-export interface User {
-    id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
+    user: UserModel.User | null;
 }
 
 export const store: Store = reactive({

@@ -34,8 +34,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Security from '../security';
-import { Book } from '../../api/model';
-import * as BookApi from '../../api/book';
+import { Book } from '../../api/book/model';
+import * as BookApi from '../../api/book/api';
 
 interface Data {
     books: Book[];

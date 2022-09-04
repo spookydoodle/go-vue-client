@@ -1,38 +1,34 @@
-<script>
-import { store } from './store';
+<script lang="ts">
+import { defineComponent } from 'vue';
+import { Store, store } from './store';
 import router from '../router/index';
-import Security from './security';
+import { UserApi } from '../api';
 
-export default {
-    data() {
+interface Data {
+    store: Store
+}
+
+export default defineComponent({
+    data(): Data {
         return {
             store
         }
     },
     methods: {
         handleLogout() {
-            const payload = {
-                token: store.token
-            }
-
-            fetch(`${process.env.VUE_APP_API_URL}/users/logout`, Security.requestOptions(payload))
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error) {
-                        throw new Error('Error when logging out');
-                    }
-
+            UserApi.logOut({ token: store.token })
+                .then(() => {
                     store.token = '';
-                    store.user = {};
+                    store.user = null;
                     document.cookie = '_site_data=; Path=/; SameSite=Strict; Secure; Expires=Thu, 01 Jan 1970 00:00:01 GMT; '
                     router.push('/login');
                 })
                 .catch((err) => {
-                    console.log(err);
+                    this.$emit('displayError', err || 'Unknown error when logging out');
                 });
         }
     }
-};
+});
 </script>
 
 <template>
@@ -57,7 +53,8 @@ export default {
                 </li>
 
                 <li v-if="store.token !== ''" class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navBarDropDown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navBarDropDown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
                         Admin
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navBarDropDown">
@@ -71,7 +68,8 @@ export default {
                             <router-link class="dropdown-item" to="/admin/books">Manage Books</router-link>
                         </li>
                         <li>
-                            <router-link class="dropdown-item" :to="{ name: 'Book Edit', params: { bookId: 0 } }">Edit Book</router-link>
+                            <router-link class="dropdown-item" :to="{ name: 'Book Edit', params: { bookId: 0 } }">Edit
+                                Book</router-link>
                         </li>
                     </ul>
                 </li>
@@ -85,7 +83,7 @@ export default {
             </ul>
 
             <span class="navbar-text">
-            {{ store.user.first_name ?? '' }}
+                {{ store.user?.first_name ?? '' }}
             </span>
         </div>
     </nav>

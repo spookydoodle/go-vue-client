@@ -1,10 +1,11 @@
 import { store } from "./store";
 import router from '../router';
+import { UserApi } from "@/api";
 
 export type Payload = { [key in string]?: string | number | string[] | number[] | null | Payload | any };
 
 const Security = {
-    requireToken: (): boolean=> {
+    requireToken: (): boolean => {
         if (store.token === '') {
             router.push('/login');
 
@@ -27,31 +28,22 @@ const Security = {
     },
     checkToken: () => {
         if (store.token !== "") {
-            const payload = {
-                token: store.token
-            }
-
             const headers = new Headers();
             headers.append("Content-Type", "application/json");
 
-            const requestOptions = {
+            UserApi.validateToken({
                 method: "POST",
-                body: JSON.stringify(payload),
+                body: JSON.stringify({ token: store.token }),
                 headers: headers
-            }
-
-            fetch(`${process.env.VUE_APP_API_URL}/validate-token`, requestOptions)
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error) {
-                        throw new Error(data.message);
+            })
+                .then((isValid) => {
+                    if (isValid) {
+                        return;
                     }
 
-                    if (!data.Data) {
-                        store.token = "";
-                        store.user = null;
-                        document.cookie = '_site_data=; Path=/; SameSite=strict; Secure; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
-                    }
+                    store.token = "";
+                    store.user = null;
+                    document.cookie = '_site_data=; Path=/; SameSite=strict; Secure; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
                 })
                 .catch((err) => {
                     console.log(err);

@@ -1,5 +1,6 @@
 import Security from '@/components/security';
-import { ResponseData, Book, Author } from './model';
+import { ResponseData } from '../model';
+import { Book, Author } from './model';
 
 export const getAll = async (): Promise<Book[]> => {
     const res = await fetch(`${process.env.VUE_APP_API_URL}/books`);

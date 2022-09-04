@@ -102,11 +102,10 @@
 </template>
 
 <script lang="ts">
-import { Book } from '@/api/model';
-import { store, Store } from '@/components/store';
 import { defineComponent } from 'vue';
-import * as BookApi from '../../api/book';
-// import { store } from './store';
+import { Book } from '@/api/book/model';
+import { store, Store } from '@/components/store';
+import * as BookApi from '../../api/book/api';
 
 interface Data {
     store: Store;
@@ -115,6 +114,7 @@ interface Data {
     books: Book[];
     currentFilter: number;
 }
+
 export default defineComponent({
     name: 'BooksView',
     data(): Data {

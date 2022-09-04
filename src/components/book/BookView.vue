@@ -24,9 +24,9 @@
 </template>
 
 <script lang="ts">
-import { Book } from '@/api/model';
+import { Book } from '@/api/book/model';
 import { defineComponent } from 'vue';
-import * as BookApi from '../../api/book';
+import * as BookApi from '../../api/book/api';
 
 interface Data {
     book: Book | null;

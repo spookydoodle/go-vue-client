@@ -78,8 +78,8 @@ import SelectInput from '../forms/SelectInput.vue';
 import FormTag from '../forms/FormTag.vue';
 import TextInput from '../forms/TextInput.vue';
 import router from '@/router';
-import { ResponseData, Book, Author, Genre} from '../../api/model';
-import * as BookApi from '../../api/book';
+import { Book, Author, Genre} from '../../api/book/model';
+import * as BookApi from '../../api/book/api';
 
 interface Data {
     book: Book;

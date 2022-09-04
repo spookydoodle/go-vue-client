@@ -1,23 +1,24 @@
-<script>
-// import { defineComponent } from '@vue/composition-api';
+<script lang="ts">
+import { defineComponent } from 'vue';
 import FormTag from './forms/FormTag.vue'
 import TextInput from './forms/TextInput.vue'
-// import SelectInput from './forms/SelectInput.vue'
-// import CheckBox from './forms/CheckBox.vue'
-import { store } from './store';
+import { Store, store } from './store';
 import router from '../router/index';
-import Security from './security';
-import { defineComponent } from 'vue';
+import { UserApi, UserModel } from '@/api';
+
+interface Data {
+    email: string;
+    password: string;
+    store: Store;
+}
 
 export default defineComponent({
     name: 'LogIn',
     components: {
         FormTag,
-        TextInput,
-        // SelectInput,
-        // CheckBox
+        TextInput
     },
-    data() {
+    data(): Data {
         return {
             email: "",
             password: "",
@@ -25,34 +26,29 @@ export default defineComponent({
         }
     },
     methods: {
-        submitHandler() {
-            const payload = {
-                email: this.email,
-                password: this.password
-            };
-
-            fetch(`${process.env.VUE_APP_API_URL}/users/login`, Security.requestOptions(payload))
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error) {
-                        throw new Error(data.message);
+        submitHandler(): void {
+            UserApi.logIn({ email: this.email, password: this.password })
+                .then((user: UserModel.User | undefined) => {
+                    if (!user) {
+                        store.token = '';
+                        store.user = null;
+                        
+                        return;
                     }
 
-                    store.token = data.Data.token.token;
+                    store.token = user.token?.token ?? '';
                     store.user = {
-                        id: data.Data.user.id,
-                        first_name: data.Data.user.first_name,
-                        last_name: data.Data.user.last_name,
-                        email: data.Data.user.email,
+                        id: user.id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email,
                     }
 
                     const date = new Date();
                     let expiryDays = 1;
                     date.setTime(date.getTime() + expiryDays * 24 * 60 * 60 * 1000);
 
-                    const expires = `expires=${date.toUTCString()}`;
-
-                    document.cookie = `_site_data=${JSON.stringify(data.Data)}; Expires=${expires}; Path=/; SameSite=strict; Secure=; `;
+                    document.cookie = `_site_data=${JSON.stringify(user)}; Expires=${date.toUTCString()}; Path=/; SameSite=strict; Secure=; `;
 
                     router.push('/');
                 })
