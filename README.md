@@ -1,5 +1,5 @@
 # vue-app
-Example vue.js application which allows to view and post data to a database via a backend server.
+Example vue.js application which allows to view and post data to a database via a backend server. 
 
 ## Project setup
 ```
