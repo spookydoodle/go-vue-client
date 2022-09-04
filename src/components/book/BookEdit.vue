@@ -78,7 +78,7 @@ import SelectInput from '../forms/SelectInput.vue';
 import FormTag from '../forms/FormTag.vue';
 import TextInput from '../forms/TextInput.vue';
 import router from '@/router';
-import { ResponseData, Book, Author, Genre} from './model';
+import { ResponseData, Book, Author, Genre} from '../../api/model';
 
 interface Data {
     book: Book;
@@ -94,6 +94,12 @@ const defaultBook: Book = {
     id: 0,
     title: '',
     author_id: 0,
+    author: {
+        id: 0,
+        author_name: '',
+        created_at: '',
+        updated_at: ''
+    },
     publication_year: null,
     description: '',
     cover: '',
@@ -191,7 +197,7 @@ export default defineComponent({
                         .then((res) => res.json())
                         .then((data: ResponseData) => {
                             if (data.error) {
-                                throw new Error(data.message || 'An error occured when deleting book.');
+                                throw new Error(data.message || 'An error occurred when deleting book.');
                             }
 
                             this.$emit('displaySuccess', 'Book deleted');
@@ -219,7 +225,7 @@ export default defineComponent({
                 .then((res) => res.json())
                 .then((data: ResponseData<Book>) => {
                     if (data.error) {
-                        throw new Error(data.message || 'An error occured when fetching book data.');
+                        throw new Error(data.message || 'An error occurred when fetching book data.');
                     }
 
                     this.book = data.Data ?? defaultBook;

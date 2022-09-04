@@ -8,7 +8,7 @@
 
                 <hr />
 
-                <table v-if="this.ready" class="table table-striped table-compact">
+                <table v-if="ready" class="table table-striped table-compact">
                     <thead>
                         <tr>
                             <th>Book</th>
@@ -16,7 +16,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="b in this.books" v-bind:key="b.id">
+                        <tr v-for="b in books" v-bind:key="b.id">
                             <td>
                                 <router-link :to="`/admin/books/${b.id}`">{{ b.title }}</router-link>
                             </td>
@@ -31,14 +31,22 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
 import Security from '../security';
+import { Book } from '../../api/model';
+import * as BookApi from '../../api/book';
 
-export default {
+interface Data {
+    books: Book[];
+    ready: Boolean;
+}
+
+export default defineComponent({
     name: 'BooksAdmin', // required for keep-alive with specific component to work
-    data() {
+    data(): Data {
         return {
-            books: {},
+            books: [],
             ready: false
         }
     },
@@ -51,19 +59,14 @@ export default {
             return;
         }
 
-        fetch(`${process.env.VUE_APP_API_URL}/books`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.error) {
-                    throw new Error(data.message)
-                }
-
-                this.books = data.Data.books;
+        BookApi.getAllBooks()
+            .then((books) => {
+                this.books = books;
                 this.ready = true;
             })
-            .catch((err) => {
-                this.$emit('displayError', err);
+            .catch((err: string) => {
+                this.$emit('displayError', err || 'Unknown error when fetching books data.');
             });
     }
-}
+});
 </script>
