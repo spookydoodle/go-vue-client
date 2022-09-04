@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import Security from './security';
+import Security from '../security';
 
 export default {
     name: 'BooksAdmin', // required for keep-alive with specific component to work

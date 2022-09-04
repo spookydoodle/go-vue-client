@@ -1,7 +1,7 @@
 <style scoped>
-    .book-cover {
-        max-width: 10em;
-    }
+.book-cover {
+    max-width: 10em;
+}
 </style>
 
 <template>
@@ -16,8 +16,8 @@
 
                 <form-tag @bookEditEvent="submitHandler" name="bookForm" event="bookEditEvent">
                     <div class="mb-3" v-if="!!book.slug">
-                        <img :src="`${imgPath}/covers/${book.slug}.jpg`"
-                            class="img-fluid img-thumbnail book-cover" alt="cover" />
+                        <img :src="`${imgPath}/covers/${book.slug}.jpg`" class="img-fluid img-thumbnail book-cover"
+                            alt="cover" />
                     </div>
 
                     <div class="mb-3">
@@ -30,8 +30,8 @@
 
                     <text-input v-model="book.title" type="text" required="true" label="Title" :value="book.title"
                         name="title" />
-                    <select-input name="author-id" v-model="book.author_id" :items="authors"
-                        required="required" label="Author" />
+                    <select-input name="author-id" v-model="book.author_id" :items="authors" required="required"
+                        label="Author" />
                     <text-input v-model="book.publication_year" type="number" required="true" label="Publication Year"
                         :value="book.publication_year" name="publication-year" />
 
@@ -71,13 +71,14 @@
 </template>
 
 <script lang="ts">
-import notie from 'notie';
-import Security from './security';
-import SelectInput from './forms/SelectInput.vue';
-import FormTag from './forms/FormTag.vue'
-import TextInput from './forms/TextInput.vue'
-import router from '@/router';
 import { defineComponent } from 'vue';
+import notie from 'notie';
+import Security from '../security';
+import SelectInput from '../forms/SelectInput.vue';
+import FormTag from '../forms/FormTag.vue';
+import TextInput from '../forms/TextInput.vue';
+import router from '@/router';
+import { ResponseData, Book, Author, Genre} from './model';
 
 interface Data {
     book: Book;
@@ -89,25 +90,17 @@ interface Data {
 }[];
 }
 
-interface Book {
-    id: number;
-    title: string;
-    author_id: number | string;
-    publication_year: number | string | null;
-    description: string;
-    cover: string;
-    slug: string;
-    genres: Genre[];
-    genre_ids: number[];
-}
-
-interface Genre {
-    id: number;
-}
-
-interface Author {
-    id: number;
-}
+const defaultBook: Book = {
+    id: 0,
+    title: '',
+    author_id: 0,
+    publication_year: null,
+    description: '',
+    cover: '',
+    slug: '',
+    genres: [],
+    genre_ids: []
+};
 
 export default defineComponent({
     name: "BookEdit",
@@ -118,17 +111,7 @@ export default defineComponent({
     },
     data(): Data {
         return {
-            book: {
-                id: 0,
-                title: '',
-                author_id: 0,
-                publication_year: null,
-                description: '',
-                cover: '',
-                slug: '',
-                genres: [],
-                genre_ids: []
-            },
+            book: defaultBook,
             authors: [],
             imgPath: process.env.VUE_APP_IMAGE_URL,
             genres: [
@@ -157,7 +140,7 @@ export default defineComponent({
 
             fetch(`${process.env.VUE_APP_API_URL}/admin/books/save`, Security.requestOptions(payload))
                 .then((res) => res.json())
-                .then((data) => {
+                .then((data: ResponseData) => {
                     if (data.error) {
                         throw new Error(data.message);
                     }
@@ -165,7 +148,7 @@ export default defineComponent({
                     this.$emit('displaySuccess', 'Changes saved');
                     router.push('/admin/books');
                 })
-                .catch((err) => {
+                .catch((err: string) => {
                     this.$emit('displayError', err);
                 });
         },
@@ -206,7 +189,7 @@ export default defineComponent({
 
                     fetch(`${process.env.VUE_APP_API_URL}/admin/books/delete`, Security.requestOptions(payload))
                         .then((res) => res.json())
-                        .then((data: { error?: boolean; message?: string}) => {
+                        .then((data: ResponseData) => {
                             if (data.error) {
                                 throw new Error(data.message || 'An error occured when deleting book.');
                             }
@@ -234,12 +217,12 @@ export default defineComponent({
         if (parseInt(bookId, 10) > 0) {
             fetch(`${process.env.VUE_APP_API_URL}/admin/books/${this.$route.params.bookId}`, Security.requestOptions({}))
                 .then((res) => res.json())
-                .then((data: { error?: boolean; message?: string; Data: Book }) => {
+                .then((data: ResponseData<Book>) => {
                     if (data.error) {
                         throw new Error(data.message || 'An error occured when fetching book data.');
                     }
 
-                    this.book = data.Data;
+                    this.book = data.Data ?? defaultBook;
                     this.book.genre_ids = this.book.genres?.map((genre: Genre) => genre.id) ?? [];
                 })
                 .catch((err: string) => {
@@ -251,12 +234,12 @@ export default defineComponent({
 
         fetch(`${process.env.VUE_APP_API_URL}/admin/authors/all`, Security.requestOptions({}))
             .then((res) => res.json())
-            .then((data: { error?: boolean; message?: string; Data: Author[] }) => {
+            .then((data: ResponseData<Author[]>) => {
                 if (data.error) {
                     throw new Error(data.message ?? 'An error occurred when fetching auhors data.');
                 }
 
-                this.authors = data.Data
+                this.authors = data.Data ?? []
             })
             .catch((err: string) => {
                 this.$emit('displayError', err || 'Unknown error when fetching auhors data.');
