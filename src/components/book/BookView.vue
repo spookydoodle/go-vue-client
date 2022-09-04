@@ -10,7 +10,7 @@
                     <h3 class="mt-3">{{ book.title }}</h3>
                     <hr />
                     <p>
-                        <strong>Author:</strong> {{ book.author.author_name }}<br />
+                        <strong>Author:</strong> {{ book.author?.author_name ?? '-' }}<br />
                         <strong>Published:</strong> {{ book.publication_year }}<br />
                     </p>
                     <p>
@@ -52,7 +52,7 @@ export default defineComponent({
         let { bookName } = this.$route.params;
         bookName = typeof bookName === 'string' ? bookName : bookName[0];
 
-        BookApi.getOneBook(bookName)
+        BookApi.getOne(bookName)
             .then((book) => {
                 this.book = book ?? null;
             })

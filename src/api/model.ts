@@ -2,12 +2,12 @@ export interface Book {
     id: number;
     title: string;
     author_id: number | string;
-    author: Author;
+    author?: Author;
     publication_year: number | string | null;
     description: string;
     cover: string;
     slug: string;
-    genres: Genre[];
+    genres?: Genre[];
     genre_ids: number[];
 }
 

@@ -21,7 +21,7 @@
                                 <router-link :to="`/admin/books/${b.id}`">{{ b.title }}</router-link>
                             </td>
                             <td>
-                                {{ b.author.author_name }}
+                                {{ b.author?.author_name ?? '' }}
                             </td>
                         </tr>
                     </tbody>
@@ -60,7 +60,7 @@ export default defineComponent({
             return;
         }
 
-        BookApi.getAllBooks()
+        BookApi.getAll()
             .then((books) => {
                 this.books = books;
                 this.ready = true;

@@ -1,7 +1,7 @@
 import { store } from "./store";
 import router from '../router';
 
-export type Payload = { [key in string]: string | number | string[] | number[] | null };
+export type Payload = { [key in string]?: string | number | string[] | number[] | null | Payload | any };
 
 const Security = {
     requireToken: (): boolean=> {

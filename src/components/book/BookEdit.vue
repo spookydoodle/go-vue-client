@@ -79,6 +79,7 @@ import FormTag from '../forms/FormTag.vue';
 import TextInput from '../forms/TextInput.vue';
 import router from '@/router';
 import { ResponseData, Book, Author, Genre} from '../../api/model';
+import * as BookApi from '../../api/book';
 
 interface Data {
     book: Book;
@@ -94,17 +95,10 @@ const defaultBook: Book = {
     id: 0,
     title: '',
     author_id: 0,
-    author: {
-        id: 0,
-        author_name: '',
-        created_at: '',
-        updated_at: ''
-    },
     publication_year: null,
     description: '',
     cover: '',
     slug: '',
-    genres: [],
     genre_ids: []
 };
 
@@ -133,7 +127,7 @@ export default defineComponent({
     },
     methods: {
         submitHandler() {
-            const payload = {
+            const book: Book = {
                 id: this.book.id,
                 title: this.book.title,
                 author_id: typeof this.book.author_id === 'string' ? parseInt(this.book.author_id, 10) : this.book.author_id,
@@ -144,13 +138,8 @@ export default defineComponent({
                 genre_ids: this.book.genre_ids
             };
 
-            fetch(`${process.env.VUE_APP_API_URL}/admin/books/save`, Security.requestOptions(payload))
-                .then((res) => res.json())
-                .then((data: ResponseData) => {
-                    if (data.error) {
-                        throw new Error(data.message);
-                    }
-
+            BookApi.save(book)
+                .then(() => {
                     this.$emit('displaySuccess', 'Changes saved');
                     router.push('/admin/books');
                 })
@@ -189,17 +178,8 @@ export default defineComponent({
                 text: 'Are you sure you want to delete this book?',
                 submitText: 'Delete',
                 submitCallback: (): void => {
-                    const payload = {
-                        id: id,
-                    }
-
-                    fetch(`${process.env.VUE_APP_API_URL}/admin/books/delete`, Security.requestOptions(payload))
-                        .then((res) => res.json())
-                        .then((data: ResponseData) => {
-                            if (data.error) {
-                                throw new Error(data.message || 'An error occurred when deleting book.');
-                            }
-
+                    BookApi.remove({ id })
+                        .then(() => {
                             this.$emit('displaySuccess', 'Book deleted');
                             router.push('/admin/books');
                         })
@@ -221,14 +201,12 @@ export default defineComponent({
         bookId = typeof bookId === 'string' ? bookId : bookId[0];
 
         if (parseInt(bookId, 10) > 0) {
-            fetch(`${process.env.VUE_APP_API_URL}/admin/books/${this.$route.params.bookId}`, Security.requestOptions({}))
-                .then((res) => res.json())
-                .then((data: ResponseData<Book>) => {
-                    if (data.error) {
-                        throw new Error(data.message || 'An error occurred when fetching book data.');
-                    }
+            let {bookId} = this.$route.params;
+            bookId = typeof bookId === 'string' ? bookId : bookId[0];
 
-                    this.book = data.Data ?? defaultBook;
+            BookApi.getOneAdmin(parseInt(bookId, 10))
+                .then((book: Book | undefined) => {
+                    this.book = book ?? defaultBook;
                     this.book.genre_ids = this.book.genres?.map((genre: Genre) => genre.id) ?? [];
                 })
                 .catch((err: string) => {
@@ -238,14 +216,9 @@ export default defineComponent({
             //
         }
 
-        fetch(`${process.env.VUE_APP_API_URL}/admin/authors/all`, Security.requestOptions({}))
-            .then((res) => res.json())
-            .then((data: ResponseData<Author[]>) => {
-                if (data.error) {
-                    throw new Error(data.message ?? 'An error occurred when fetching auhors data.');
-                }
-
-                this.authors = data.Data ?? []
+        BookApi.getAuthors()
+            .then((authors) => {
+                this.authors = authors
             })
             .catch((err: string) => {
                 this.$emit('displayError', err || 'Unknown error when fetching auhors data.');

@@ -82,11 +82,11 @@
                                 </router-link>
                                 <div class="card-body text-center">
                                     <h6 class="card-title">{{ b.title }}</h6>
-                                    <span class="book-author">{{ b.author.author_name }}</span><br />
+                                    <span class="book-author">{{ b.author?.author_name ?? '-' }}</span><br />
                                     <small class="text-muted book-genre" v-for="(g, index) in b.genres"
                                         v-bind:key="g.id">
                                         <em class="me-1">{{ g.genre_name }}
-                                            <template v-if="index !== (b.genres.length - 1)">,</template>
+                                            <template v-if="index !== ((b.genres?.length ?? 0) - 1)">,</template>
                                         </em>
                                     </small>
                                 </div>
@@ -133,7 +133,7 @@ export default defineComponent({
     },
     emits: ['displayError'],
     beforeMount() {
-        BookApi.getAllBooks()
+        BookApi.getAll()
             .then((books) => {
                 this.books = books;
                 this.ready = true;
