@@ -55,8 +55,8 @@
 import { defineComponent } from 'vue';
 import notie from 'notie';
 import { UserApi, UserModel } from '@/api';
-import Security from './security';
-import { store } from './store';
+import Security from '../security';
+import { store } from '../store';
 
 interface Data {
     users: UserModel.User[];

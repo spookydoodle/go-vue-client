@@ -1,9 +1,29 @@
+<template>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-5">Login</h1>
+                <hr>
+                <!-- v-on:myevent="submitHandler" = @myevent="submitHandler" -->
+                <form-tag @myevent="submitHandler" name="login" event="myevent" method="post" action="/login">
+                    <text-input v-model="email" label="Email" type="email" name="email" required />
+                    <text-input v-model="password" label="Password" type="password" name="password" required />
+                    <hr />
+                    E-mail: {{email}}
+                    <hr />
+                    <input type="submit" class="btn btn-primary" value="Login">
+                </form-tag>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script lang="ts">
 import { defineComponent } from 'vue';
-import FormTag from './forms/FormTag.vue'
-import TextInput from './forms/TextInput.vue'
-import { Store, store } from './store';
-import router from '../router/index';
+import FormTag from '../forms/FormTag.vue'
+import TextInput from '../forms/TextInput.vue'
+import { Store, store } from '../store';
+import router from '../../router/index';
 import { UserApi, UserModel } from '@/api';
 
 interface Data {
@@ -59,23 +79,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<template>
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h1 class="mt-5">Login</h1>
-                <hr>
-                <!-- v-on:myevent="submitHandler" = @myevent="submitHandler" -->
-                <form-tag @myevent="submitHandler" name="login" event="myevent" method="post" action="/login">
-                    <text-input v-model="email" label="Email" type="email" name="email" required />
-                    <text-input v-model="password" label="Password" type="password" name="password" required />
-                    <hr />
-                    E-mail: {{email}}
-                    <hr />
-                    <input type="submit" class="btn btn-primary" value="Login">
-                </form-tag>
-            </div>
-        </div>
-    </div>
-</template>

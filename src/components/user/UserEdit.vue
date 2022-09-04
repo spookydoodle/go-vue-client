@@ -61,11 +61,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import notie from 'notie';
-import Security from './security';
-import router from '../router';
-import FormTag from './forms/FormTag.vue'
-import TextInput from './forms/TextInput.vue'
-import { Store, store } from './store';
+import Security from '../security';
+import router from '../../router';
+import FormTag from '../forms/FormTag.vue'
+import TextInput from '../forms/TextInput.vue'
+import { Store, store } from '../store';
 import { UserApi, UserModel } from '@/api';
 
 interface Data {
