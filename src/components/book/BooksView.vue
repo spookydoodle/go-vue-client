@@ -73,7 +73,7 @@
 
                     <transition-group class="p-3 d-flex flex-wrap" tag="div" appear name="books">
 
-                        <div v-for="b in this.books" :key="b.id">
+                        <div v-for="b in books" :key="b.id">
                             <div class="card me-2 ms-1 mb-3" style="width: 10rem;"
                                 v-if="b.genre_ids.includes(currentFilter) || currentFilter === 0">
                                 <router-link :to="`/books/${b.slug}`">
@@ -81,11 +81,11 @@
                                         class="card-img-top" />
                                 </router-link>
                                 <div class="card-body text-center">
-                                    <h6 class="card-title">{{  b.title  }}</h6>
-                                    <span class="book-author">{{  b.author.author_name  }}</span><br />
+                                    <h6 class="card-title">{{ b.title }}</h6>
+                                    <span class="book-author">{{ b.author.author_name }}</span><br />
                                     <small class="text-muted book-genre" v-for="(g, index) in b.genres"
                                         v-bind:key="g.id">
-                                        <em class="me-1">{{  g.genre_name  }}
+                                        <em class="me-1">{{ g.genre_name }}
                                             <template v-if="index !== (b.genres.length - 1)">,</template>
                                         </em>
                                     </small>
@@ -101,44 +101,46 @@
     </div>
 </template>
 
-<script>
-import { store } from '@/components/store';
+<script lang="ts">
+import { Book } from '@/api/model';
+import { store, Store } from '@/components/store';
+import { defineComponent } from 'vue';
+import * as BookApi from '../../api/book';
 // import { store } from './store';
 
-export default {
+interface Data {
+    store: Store;
+    ready: boolean;
+    imgPath: string;
+    books: Book[];
+    currentFilter: number;
+}
+export default defineComponent({
     name: 'BooksView',
-    setup() {
-
-    },
-    data() {
+    data(): Data {
         return {
             store: store,
             ready: false,
             imgPath: process.env.VUE_APP_IMAGE_URL,
-            books: {},
+            books: [],
             currentFilter: 0,
         }
     },
     methods: {
-        setFilter: function (filter) {
+        setFilter: function (filter: number) {
             this.currentFilter = filter;
         },
     },
-    emits: ['error'],
+    emits: ['displayError'],
     beforeMount() {
-        fetch(`${process.env.VUE_APP_API_URL}/books`)
-            .then((res) => res.json())
-            .then((response) => {
-                if (response.error) {
-                    throw new Error(response.message);
-                }
-
-                this.books = response.Data.books;
+        BookApi.getAllBooks()
+            .then((books) => {
+                this.books = books;
                 this.ready = true;
             })
-            .catch((err) => {
-                this.$emit('displayError', err);
+            .catch((err: string) => {
+                this.$emit('displayError', err || 'Unknown error when fetching books data.');
             });
     }
-}
+})
 </script>

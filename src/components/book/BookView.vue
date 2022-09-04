@@ -2,19 +2,19 @@
     <div class="container">
         <div class="row">
             <div class="col-md-2">
-                <img v-if="this.ready" class="img-fluid img-thumbnail" :src="`${imgPath}/covers/${book.slug}.jpg`"
+                <img v-if="!!book" class="img-fluid img-thumbnail" :src="`${imgPath}/covers/${book.slug}.jpg`"
                     alt="cover">
             </div>
             <div class="col-md-10">
-                <template v-if="this.ready">
-                    <h3 class="mt-3">{{  book.title  }}</h3>
+                <template v-if="!!book">
+                    <h3 class="mt-3">{{ book.title }}</h3>
                     <hr />
                     <p>
-                        <strong>Author:</strong> {{  book.author.author_name  }}<br />
-                        <strong>Published:</strong> {{  book.publication_year  }}<br />
+                        <strong>Author:</strong> {{ book.author.author_name }}<br />
+                        <strong>Published:</strong> {{ book.publication_year }}<br />
                     </p>
                     <p>
-                        {{  book.description  }}
+                        {{ book.description }}
                     </p>
                 </template>
                 <p v-else>Loading...</p>
@@ -23,17 +23,25 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { Book } from '@/api/model';
+import { defineComponent } from 'vue';
+import * as BookApi from '../../api/book';
+
+interface Data {
+    book: Book | null;
+    imgPath: string;
+}
+
+export default defineComponent({
     name: 'BookView', // required for keep-alive with specific component to work
     setup() {
 
     },
-    data() {
+    data(): Data {
         return {
-            book: {},
-            imgPath: process.env.VUE_APP_IMAGE_URL,
-            ready: false
+            book: null,
+            imgPath: process.env.VUE_APP_IMAGE_URL
         }
     },
     // Move logic to activated when keep-alive is on because component is cached, so on mount happens only the first time the ocmponent is viewed (see App keep-alive)
@@ -41,19 +49,17 @@ export default {
 
     },
     mounted() {
-        fetch(`${process.env.VUE_APP_API_URL}/books/${this.$route.params.bookName}`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.error) {
-                    throw new Error(data.message);
-                }
+        let { bookName } = this.$route.params;
+        bookName = typeof bookName === 'string' ? bookName : bookName[0];
 
-                this.book = data.Data;
-                this.ready = true;
+        BookApi.getOneBook(bookName)
+            .then((book) => {
+                this.book = book ?? null;
             })
-            .catch((err) => {
-                this.$emit('displayError', err);
+            .catch((err: string) => {
+                this.$emit('displayError', err || 'Unknown error when fetching book data.');
+                this.book = null;
             });
     }
-}
+})
 </script>

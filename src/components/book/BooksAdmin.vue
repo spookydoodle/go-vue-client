@@ -50,6 +50,7 @@ export default defineComponent({
             ready: false
         }
     },
+    emits: ['displayError'],
     beforeMount() {
     },
     mounted() {
