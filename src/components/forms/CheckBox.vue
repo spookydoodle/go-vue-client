@@ -9,8 +9,10 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     name: 'CheckBox',
     props: ["label", "required", "name", "value", "checked"],
-}
+})
 </script>

@@ -137,7 +137,7 @@ export default {
                 this.ready = true;
             })
             .catch((err) => {
-                this.$emit('error', err);
+                this.$emit('displayError', err);
             });
     }
 }

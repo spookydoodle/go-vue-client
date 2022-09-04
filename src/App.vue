@@ -1,7 +1,7 @@
 <template>
 	<LayoutHeader />
 	<div>
-		<router-view v-slot="{ Component }" :key="componentKey" @success="success" @error="error" @warning="warning"
+		<router-view v-slot="{ Component }" :key="componentKey" @displaySuccess="displaySuccess" @displayError="displayError" @displayWarning="displayWarning"
 			@forceUpdate="forceUpdate">
 			<!-- Cache component and keep state while not rendered until its rendered again -->
 			<keep-alive include="BooksView">
@@ -13,19 +13,20 @@
 </template>
 
 
-<script>
+<script lang="ts">
 import notie from 'notie';
 import LayoutHeader from './components/LayoutHeader.vue';
 import LayoutFooter from './components/LayoutFooter.vue';
 import { store } from './components/store';
+import { defineComponent } from 'vue';
 
-const getCookie = (name) => document.cookie.split('; ').reduce((acc, val) => {
+const getCookie = (name: string): string => document.cookie.split('; ').reduce((acc, val) => {
 	const splitIndex = val.indexOf('=');
 
 	return val.substring(0, splitIndex) === name ? decodeURIComponent(val.substring(splitIndex + 1)) : acc;
 }, '');
 
-export default {
+export default defineComponent({
 	name: 'Some-appp',
 	components: {
 		LayoutHeader,
@@ -38,19 +39,19 @@ export default {
 		}
 	},
 	methods: {
-		success(msg) {
+		displaySuccess(msg: string) {
 			notie.alert({
 				type: 'success',
 				text: msg
 			})
 		},
-		warning(msg) {
+		displayWarning(msg: string) {
 			notie.alert({
 				type: 'warning',
 				text: msg
 			})
 		},
-		error(msg) {
+		displayError(msg: string) {
 			notie.alert({
 				type: 'error',
 				text: msg
@@ -76,5 +77,5 @@ export default {
 			email: cookieData.user.email,
 		};
 	},
-}
+});
 </script>

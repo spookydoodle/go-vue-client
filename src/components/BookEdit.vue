@@ -15,14 +15,14 @@
                 <hr />
 
                 <form-tag @bookEditEvent="submitHandler" name="bookForm" event="bookEditEvent">
-                    <div class="mb-3" v-if="!!this.book.slug">
-                        <img :src="`${this.imgPath}/covers/${this.book.slug}.jpg`"
+                    <div class="mb-3" v-if="!!book.slug">
+                        <img :src="`${imgPath}/covers/${book.slug}.jpg`"
                             class="img-fluid img-thumbnail book-cover" alt="cover" />
                     </div>
 
                     <div class="mb-3">
                         <label for="formFile" class="form-label">Cover Image</label>
-                        <input v-if="this.book.id === 0" ref="coverInput" class="form-control" type="file" id="formFile"
+                        <input v-if="book.id === 0" ref="coverInput" class="form-control" type="file" id="formFile"
                             required accept="image/jpeg" @change="loadCoverImage" />
                         <input v-else ref="coverInput" class="form-control" type="file" id="formFile"
                             accept="image/jpeg" @change="loadCoverImage" />
@@ -30,7 +30,7 @@
 
                     <text-input v-model="book.title" type="text" required="true" label="Title" :value="book.title"
                         name="title" />
-                    <select-input name="author-id" v-model="this.book.author_id" :items="this.authors"
+                    <select-input name="author-id" v-model="book.author_id" :items="authors"
                         required="required" label="Author" />
                     <text-input v-model="book.publication_year" type="number" required="true" label="Publication Year"
                         :value="book.publication_year" name="publication-year" />
@@ -43,9 +43,9 @@
 
                     <div class="mb-3">
                         <label for="genres" class="form-label">Genres</label>
-                        <select ref="genres" id="genres" required="true" size="7" v-model="this.book.genre_ids" multiple
+                        <select ref="genres" id="genres" required="true" size="7" v-model="book.genre_ids" multiple
                             class="form-select">
-                            <option v-for="g in this.genres" :value="g.value" :key="g.value">{{ g.text }}</option>
+                            <option v-for="g in genres" :value="g.value" :key="g.value">{{ g.text }}</option>
                         </select>
                     </div>
 
@@ -57,8 +57,8 @@
                     </div>
 
                     <div class="float-end">
-                        <a v-if="this.book.id > 0" class="btn btn-danger" href="javascript:void(0);"
-                            @click="confirmDelete(this.book.id)">
+                        <a v-if="book.id > 0" class="btn btn-danger" href="javascript:void(0);"
+                            @click="confirmDelete(book.id)">
                             Delete
                         </a>
                     </div>
@@ -70,22 +70,53 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import notie from 'notie';
 import Security from './security';
 import SelectInput from './forms/SelectInput.vue';
 import FormTag from './forms/FormTag.vue'
 import TextInput from './forms/TextInput.vue'
 import router from '@/router';
+import { defineComponent } from 'vue';
 
-export default {
+interface Data {
+    book: Book;
+    authors: Author[];
+    imgPath: string;
+    genres: {
+    value: number;
+    text: string;
+}[];
+}
+
+interface Book {
+    id: number;
+    title: string;
+    author_id: number | string;
+    publication_year: number | string | null;
+    description: string;
+    cover: string;
+    slug: string;
+    genres: Genre[];
+    genre_ids: number[];
+}
+
+interface Genre {
+    id: number;
+}
+
+interface Author {
+    id: number;
+}
+
+export default defineComponent({
     name: "BookEdit",
     components: {
         'form-tag': FormTag,
         'text-input': TextInput,
         'select-input': SelectInput
     },
-    data() {
+    data(): Data {
         return {
             book: {
                 id: 0,
@@ -116,8 +147,8 @@ export default {
             const payload = {
                 id: this.book.id,
                 title: this.book.title,
-                author_id: parseInt(this.book.author_id, 10),
-                publication_year: parseInt(this.book.publication_year, 10),
+                author_id: typeof this.book.author_id === 'string' ? parseInt(this.book.author_id, 10) : this.book.author_id,
+                publication_year: typeof this.book.publication_year === 'string' ? parseInt(this.book.publication_year, 10) : this.book.publication_year,
                 description: this.book.description,
                 cover: this.book.cover,
                 slug: this.book.slug,
@@ -131,88 +162,105 @@ export default {
                         throw new Error(data.message);
                     }
 
-                    this.$emit('success', 'Changes saved');
+                    this.$emit('displaySuccess', 'Changes saved');
                     router.push('/admin/books');
                 })
                 .catch((err) => {
-                    this.$emit('error', err);
+                    this.$emit('displayError', err);
                 });
         },
         loadCoverImage() {
-            const file = this.$refs.coverInput.files[0];
+            const file = (this.$refs.coverInput as HTMLInputElement).files?.[0];
+            
+            if (!file) { 
+                return;
+            }
+
             const reader = new FileReader();
 
-            reader.onloadend = () => {
-                const base64String = reader.result
-                    .replace('data:', "")
+            reader.onloadend = (): void => {
+                if (!reader.result) {
+                    this.book.cover = '';
+                    
+                    return;
+                }
+
+                const base64String = (typeof reader.result === 'string' ? reader.result : undefined)
+                    ?.replace('data:', "")
                     .replace(/^.+,/, "");
 
-                this.book.cover = base64String;
+                this.book.cover = base64String ?? '';
                 alert(base64String);
             }
 
             reader.readAsDataURL(file);
         },
-        confirmDelete(id) {
+        confirmDelete(id: number) {
             notie.confirm({
                 text: 'Are you sure you want to delete this book?',
                 submitText: 'Delete',
-                submitCallback: () => {
+                submitCallback: (): void => {
                     const payload = {
                         id: id,
                     }
 
                     fetch(`${process.env.VUE_APP_API_URL}/admin/books/delete`, Security.requestOptions(payload))
                         .then((res) => res.json())
-                        .then((data) => {
+                        .then((data: { error?: boolean; message?: string}) => {
                             if (data.error) {
-                                throw new Error(data.message);
+                                throw new Error(data.message || 'An error occured when deleting book.');
                             }
 
-                            this.$emit('success', 'Book deleted');
+                            this.$emit('displaySuccess', 'Book deleted');
                             router.push('/admin/books');
                         })
-                        .catch((err) => {
-                            this.$emit('error', err);
+                        .catch((err: string) => {
+                            this.$emit('displayError', err || 'Unknown error when deleting book.');
                         });
                 }
             })
         }
     },
     beforeMount() {
-        Security.requireToken();
+        const requireToken = Security.requireToken();
 
-        if (this.$route.params.bookId > 0) {
-            fetch(`${process.env.VUE_APP_API_URL}/admin/books/${this.$route.params.bookId}`, Security.requestOptions(""))
+        if (requireToken) {
+            return;
+        }
+
+        let { bookId } = this.$route.params;
+        bookId = typeof bookId === 'string' ? bookId : bookId[0];
+
+        if (parseInt(bookId, 10) > 0) {
+            fetch(`${process.env.VUE_APP_API_URL}/admin/books/${this.$route.params.bookId}`, Security.requestOptions({}))
                 .then((res) => res.json())
-                .then((data) => {
+                .then((data: { error?: boolean; message?: string; Data: Book }) => {
                     if (data.error) {
-                        throw new Error(data.message)
+                        throw new Error(data.message || 'An error occured when fetching book data.');
                     }
 
                     this.book = data.Data;
-                    console.log(this.book);
-                    this.book.genre_ids = this.book.genres?.map((g) => g.id) ?? [];
+                    this.book.genre_ids = this.book.genres?.map((genre: Genre) => genre.id) ?? [];
                 })
-                .catch((err) => {
-                    this.$emit('error', err);
+                .catch((err: string) => {
+                    this.$emit('displayError', err || 'Unknown error when fetching book data.');
                 });
         } else {
             //
         }
 
-        fetch(`${process.env.VUE_APP_API_URL}/admin/authors/all`, Security.requestOptions(""))
+        fetch(`${process.env.VUE_APP_API_URL}/admin/authors/all`, Security.requestOptions({}))
             .then((res) => res.json())
-            .then((data) => {
+            .then((data: { error?: boolean; message?: string; Data: Author[] }) => {
                 if (data.error) {
-                    throw new Error(data.message);
+                    throw new Error(data.message ?? 'An error occurred when fetching auhors data.');
                 }
 
                 this.authors = data.Data
             })
-            .catch((err) => {
-                this.$emit('error', err);
+            .catch((err: string) => {
+                this.$emit('displayError', err || 'Unknown error when fetching auhors data.');
             });
     },
-}
+});
 </script>

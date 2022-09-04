@@ -7,8 +7,9 @@ import TextInput from './forms/TextInput.vue'
 import { store } from './store';
 import router from '../router/index';
 import Security from './security';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
     name: 'LogIn',
     components: {
         FormTag,
@@ -56,11 +57,11 @@ export default {
                     router.push('/');
                 })
                 .catch((err) => {
-                    this.$emit('error', err);
+                    this.$emit('displayError', err);
                 });
         },
     },
-};
+});
 </script>
 
 <template>

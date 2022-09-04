@@ -45,7 +45,11 @@ export default {
     beforeMount() {
     },
     mounted() {
-        Security.requireToken();
+        const requireToken = Security.requireToken();
+
+        if (requireToken) {
+            return;
+        }
 
         fetch(`${process.env.VUE_APP_API_URL}/books`)
             .then((res) => res.json())
@@ -58,7 +62,7 @@ export default {
                 this.ready = true;
             })
             .catch((err) => {
-                this.$emit('error', err);
+                this.$emit('displayError', err);
             });
     }
 }

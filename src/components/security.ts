@@ -1,15 +1,19 @@
 import { store } from "./store";
 import router from '../router';
 
+export type Payload = { [key in string]: string | number | string[] | number[] | null };
+
 const Security = {
-    requireToken: () => {
+    requireToken: (): boolean=> {
         if (store.token === '') {
             router.push('/login');
 
-            return false;
+            return true;
         }
+
+        return false;
     },
-    requestOptions: (payload) => {
+    requestOptions: (payload: Payload) => {
         const headers = new Headers();
 
         headers.append("Content-Type", "application/json");
@@ -30,7 +34,7 @@ const Security = {
             const headers = new Headers();
             headers.append("Content-Type", "application/json");
 
-            let requestOptions = {
+            const requestOptions = {
                 method: "POST",
                 body: JSON.stringify(payload),
                 headers: headers

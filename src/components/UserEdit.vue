@@ -43,11 +43,11 @@ export default {
                         throw new Error(data.message)
                     }
 
-                    this.$emit('success', 'Changes saved');
+                    this.$emit('displaySuccess', 'Changes saved');
                     router.push('/admin/users');
                 })
                 .catch((err) => {
-                    this.$emit('error', err);
+                    this.$emit('displayError', err);
                 });
         },
         confirmDelete(id) {
@@ -66,21 +66,25 @@ export default {
                                 throw new Error(data.message);
                             }
 
-                            this.$emit('success', 'User deleted');
+                            this.$emit('displaySuccess', 'User deleted');
                             router.push('/admin/users');
                         })
                         .catch((err) => {
-                            this.$emit('error', err);
+                            this.$emit('displayError', err);
                         })
                 }
             })
         },
     },
     beforeMount() {
-        Security.requireToken();
+        const requireToken = Security.requireToken();
+
+        if (requireToken) {
+            return;
+        }
 
         if (parseInt(String(this.$route.params.userId, 10)) > 0) {
-            fetch(`${process.env.VUE_APP_API_URL}/admin/users/get/${this.$route.params.userId}`, Security.requestOptions(""))
+            fetch(`${process.env.VUE_APP_API_URL}/admin/users/get/${this.$route.params.userId}`, Security.requestOptions({}))
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.error) {
@@ -92,7 +96,7 @@ export default {
                     this.ready = true;
                 })
                 .catch((err) => {
-                    this.$emit('error', err);
+                    this.$emit('displayError', err);
                 })
         } else {
             this.ready = true;

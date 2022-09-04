@@ -21,30 +21,34 @@ export default {
                     text: 'Are you sure you want to log this user out?',
                     submitText: 'Log out',
                     submitCallback: () => {
-                        fetch(`${process.env.VUE_APP_API_URL}/admin/log-user-out/${id}`, Security.requestOptions(""))
+                        fetch(`${process.env.VUE_APP_API_URL}/admin/log-user-out/${id}`, Security.requestOptions({}))
                             .then((res) => res.json())
                             .then((data) => {
                                 if (data.error) {
                                     throw new Error(data.message)
                                 }
 
-                                this.$emit('success', data.message);
+                                this.$emit('displaySuccess', data.message);
                                 this.$emit('forceUpdate');
                             })
                             .catch((err) => {
-                                this.$emit('error', err);
+                                this.$emit('displayError', err);
                             })
                     }
                 })
             } else {
-                this.$emit('error', "You can't log yourself out.");
+                this.$emit('displayError', "You can't log yourself out.");
             }
         }
     },
     beforeMount() {
-        Security.requireToken();
+        const requireToken = Security.requireToken();
 
-        fetch(`${process.env.VUE_APP_API_URL}/admin/users`, Security.requestOptions(""))
+        if (requireToken) {
+            return;
+        }
+
+        fetch(`${process.env.VUE_APP_API_URL}/admin/users`, Security.requestOptions({}))
             .then((res) => res.json())
             .then((data) => {
                 if (data.error) {
@@ -58,7 +62,7 @@ export default {
                 // })
             })
             .catch((err) => {
-                this.$emit('error', err);
+                this.$emit('displayError', err);
             })
     }
 }

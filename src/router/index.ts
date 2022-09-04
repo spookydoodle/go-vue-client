@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LayoutBody from '../components/LayoutBody';
-import LogIn from '../components/LogIn';
-import BooksAdmin from '../components/BooksAdmin';
-import BooksView from '../components/BooksView';
-import BookView from '../components/BookView';
-import BookEdit from '../components/BookEdit';
-import UsersAll from '../components/UsersAll';
-import UserEdit from '../components/UserEdit';
+import LayoutBody from '@/components/LayoutBody.vue';
+import LogIn from '@/components/LogIn.vue';
+import BooksAdmin from '@/components/BooksAdmin.vue';
+import BooksView from '@/components/BooksView.vue';
+import BookView from '@/components/BookView.vue';
+import BookEdit from '@/components/BookEdit.vue';
+import UsersAll from '@/components/UsersAll.vue';
+import UserEdit from '@/components/UserEdit.vue';
 import Security from '../components/security';
 
 const routes = [
